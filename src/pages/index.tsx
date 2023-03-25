@@ -20,7 +20,7 @@ const Home: NextPage = () => {
       <main className="flex min-h-screen flex-col items-center justify-center ">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
           <div className="flex flex-col items-center gap-2">
-            <div>{`Hi, ${user?.fullName}`}</div>
+            <div>{user?.fullName}</div>
           </div>
           <div>
             <p className="font-bold">Your Posts</p>
@@ -28,7 +28,7 @@ const Home: NextPage = () => {
           <div>
             <ul>
               {data?.map((item, index) => (
-                <div className="flex">
+                <div key={index} className="flex">
                   <p className="pr-2 font-bold">{`${index + 1}. `}</p>
                   <li key={item?.id}>{`${item?.content}`}</li>
                 </div>

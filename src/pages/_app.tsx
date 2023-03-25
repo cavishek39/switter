@@ -1,5 +1,4 @@
 import { type AppType } from "next/app";
-import { type Session } from "next-auth";
 import { useRouter } from "next/router";
 import {
   ClerkProvider,
@@ -13,10 +12,7 @@ import "~/styles/globals.css";
 
 const publicPages: Array<string> = [];
 
-const MyApp: AppType<{ session: Session | null }> = ({
-  Component,
-  pageProps: { session, ...pageProps },
-}) => {
+const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
   // Get the pathname
   const { pathname } = useRouter();
 
