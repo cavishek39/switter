@@ -8,7 +8,7 @@ const Home: NextPage = () => {
   const { data } = api.posts.getAll.useQuery();
 
   // console.log("Posts data ", data);
-  const { isLoaded, isSignedIn, user } = useUser();
+  const { user } = useUser();
 
   return (
     <>
