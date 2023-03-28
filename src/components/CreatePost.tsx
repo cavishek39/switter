@@ -9,10 +9,10 @@ export const CreatePost = () => {
 
   const ctx = api.useContext();
 
-  const { mutate } = api.posts.createPost.useMutation({
+  const { mutate, isLoading } = api.posts.createPost.useMutation({
     onSuccess() {
       setText("");
-      void ctx.posts.getAll.invalidate();
+      ctx.posts.getAll.invalidate();
     },
   });
 
@@ -40,14 +40,15 @@ export const CreatePost = () => {
       />
       <input
         type="text"
-        value={text}
+        value={isLoading ? "..." : text}
+        disabled={isLoading}
         placeholder="Give your sweet tweet"
         className="grow bg-transparent outline-none"
         onChange={(event) => setText(event.target.value)}
         onKeyUp={handleKeyPress}
       />
       <button type="button" onClick={handleSubmit}>
-        Submit
+        {isLoading ? "..." : "Submit"}
       </button>
     </div>
   );
