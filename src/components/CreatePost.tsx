@@ -12,7 +12,7 @@ export const CreatePost = () => {
   const { mutate, isLoading } = api.posts.createPost.useMutation({
     onSuccess() {
       setText("");
-      ctx.posts.getAll.invalidate();
+      void ctx.posts.getAll.invalidate();
     },
   });
 
