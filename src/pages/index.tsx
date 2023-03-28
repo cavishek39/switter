@@ -3,11 +3,11 @@ import Head from "next/head";
 import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
+import { CreatePost } from "~/components/CreatePost";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
 
-  // console.log("Posts data ", data);
   const { user, isSignedIn } = useUser();
 
   if (isLoading) {
@@ -47,17 +47,25 @@ const Home: NextPage = () => {
             )}
           </div>
 
-          <div>
-            <p className="font-bold">Your Posts</p>
+          <div className=" border-b border-slate-500 p-6">
+            <CreatePost />
           </div>
-          <div className="flex w-full flex-col  justify-center">
-            <>
-              {data?.map((item, index) => (
-                <div key={index} className="border-b border-slate-500 p-6">
-                  {item?.content}
+          <div className="flex w-full flex-col justify-center">
+            {data?.map((item, index) => (
+              <div key={index} className="flex border-b border-slate-500 p-6">
+                <img
+                  src={item?.author?.profileImageUrl}
+                  alt="profile-img"
+                  className="mr-4 h-14 w-14 rounded-full"
+                />
+                <div key={index} className="items-center justify-center">
+                  <div className="text-lg font-semibold text-sky-700">
+                    {item?.author?.username}
+                  </div>
+                  <div className="text-base">{item?.post?.content}</div>
                 </div>
-              ))}
-            </>
+              </div>
+            ))}
           </div>
         </div>
       </main>
