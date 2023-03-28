@@ -37,10 +37,13 @@ export const postsRouter = createTRPCRouter({
       })
     ).map(filteredPosts);
 
-    return posts.map((post) => ({
-      post,
-      author: users.find((user) => user?.id === post?.authorId),
-    }));
+    return posts.map((post) => {
+      const author = users.find((user) => user?.id === post?.authorId);
+      return {
+        post,
+        author,
+      };
+    });
   }),
 
   createPost: protectedProcedure
@@ -57,7 +60,6 @@ export const postsRouter = createTRPCRouter({
         },
       });
 
-      console.log("post in router", post);
       return post;
     }),
 });
