@@ -4,11 +4,12 @@ import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
 import { CreatePost } from "~/components/CreatePost";
+import Image from "next/image";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
 
-  const { user, isSignedIn } = useUser();
+  const { isSignedIn } = useUser();
 
   if (isLoading) {
     return (
@@ -37,16 +38,16 @@ const Home: NextPage = () => {
         <div className="h-full w-full flex-col items-center justify-center border-x border-slate-500  md:max-w-2xl">
           <div className="flex w-full justify-end border-b p-4">
             <div className="flex-1 items-center justify-center">
-              <h1 className=" text-center text-3xl font-extrabold tracking-tight  text-[hsl(280,100%,70%)] sm:text-[5rem]">
+              <h1 className=" pb-3 text-center text-3xl font-extrabold tracking-tight text-[hsl(280,100%,70%)] sm:text-[5rem]">
                 Switter
               </h1>
             </div>
             {!isSignedIn ? (
-              <div className="flex justify-center rounded-lg bg-slate-500 px-3 py-2">
+              <div className="flex h-5 justify-center rounded-lg bg-slate-500 px-3">
                 <SignInButton mode="modal" />
               </div>
             ) : (
-              <div className="flex justify-center rounded-lg bg-slate-500 px-3 py-2">
+              <div className="flex h-9 justify-center rounded-lg bg-slate-500 px-3">
                 <SignOutButton />
               </div>
             )}
@@ -58,8 +59,10 @@ const Home: NextPage = () => {
           <div className="flex w-full flex-col justify-center">
             {data?.map((item, index) => (
               <div key={index} className="flex border-b border-slate-500 p-6">
-                <img
-                  src={item?.author?.profileImageUrl}
+                <Image
+                  src={item?.author?.profileImageUrl || ""}
+                  width={56}
+                  height={56}
                   alt="profile-img"
                   className="mr-4 h-14 w-14 rounded-full"
                 />

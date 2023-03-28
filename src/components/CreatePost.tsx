@@ -1,4 +1,5 @@
 import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
 import React, { useState } from "react";
 import { api } from "~/utils/api";
 
@@ -15,7 +16,7 @@ export const CreatePost = () => {
     },
   });
 
-  const handleKeyPress = (event: any) => {
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "Enter") {
       handleSubmit();
     }
@@ -30,8 +31,10 @@ export const CreatePost = () => {
 
   return (
     <div className="flex">
-      <img
-        src={user?.profileImageUrl}
+      <Image
+        src={user?.profileImageUrl || ""}
+        width={56}
+        height={56}
         alt="profile-img"
         className="mr-4 h-14 w-14 rounded-full"
       />
