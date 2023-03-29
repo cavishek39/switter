@@ -19,7 +19,7 @@ const config = {
     defaultLocale: "en",
   },
   images: {
-    domains: ["localhost", "images.clerk.dev"],
+    domains: ["localhost", "images.clerk.dev", "i.postimg.cc"],
     remotePatterns: [
       {
         protocol: "https",

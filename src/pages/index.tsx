@@ -4,7 +4,7 @@ import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
 
 import { api } from "~/utils/api";
 import { CreatePost } from "~/components/CreatePost";
-import Image from "next/image";
+import Post from "~/components/Post";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
@@ -43,7 +43,7 @@ const Home: NextPage = () => {
               </h1>
             </div>
             {!isSignedIn ? (
-              <div className="flex h-5 justify-center rounded-lg bg-slate-500 px-3">
+              <div className="flex h-9 justify-center rounded-lg bg-slate-500 px-3">
                 <SignInButton mode="modal" />
               </div>
             ) : (
@@ -58,21 +58,7 @@ const Home: NextPage = () => {
           </div>
           <div className="flex w-full flex-col justify-center">
             {data?.map((item, index) => (
-              <div key={index} className="flex border-b border-slate-500 p-6">
-                <Image
-                  src={item?.author?.profileImageUrl || ""}
-                  width={56}
-                  height={56}
-                  alt="profile-img"
-                  className="mr-4 h-14 w-14 rounded-full"
-                />
-                <div key={index} className="items-center justify-center">
-                  <div className="text-lg font-semibold text-sky-700">
-                    {item?.author?.username}
-                  </div>
-                  <div className="text-base">{item?.post?.content}</div>
-                </div>
-              </div>
+              <Post key={index} post={item?.post} author={item?.author} />
             ))}
           </div>
         </div>

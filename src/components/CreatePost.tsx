@@ -1,7 +1,10 @@
 import { useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
+import { DEFAULT_AVATAR } from "~/constants";
 import { api } from "~/utils/api";
+import { LoadingSpinner } from "./LoadingSpinner";
 
 export const CreatePost = () => {
   const { user } = useUser();
@@ -13,6 +16,14 @@ export const CreatePost = () => {
     onSuccess() {
       setText("");
       void ctx.posts.getAll.invalidate();
+    },
+    onError(err) {
+      setText("");
+      toast.error(
+        `${err.message}, ${
+          !user?.id ? "Please sign in first" : "Please try again later"
+        }`
+      );
     },
   });
 
@@ -32,7 +43,7 @@ export const CreatePost = () => {
   return (
     <div className="flex">
       <Image
-        src={user?.profileImageUrl || ""}
+        src={user?.profileImageUrl || DEFAULT_AVATAR}
         width={56}
         height={56}
         alt="profile-img"
@@ -47,9 +58,13 @@ export const CreatePost = () => {
         onChange={(event) => setText(event.target.value)}
         onKeyUp={handleKeyPress}
       />
-      <button type="button" onClick={handleSubmit}>
-        {isLoading ? "..." : "Submit"}
-      </button>
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : (
+        <button type="button" onClick={handleSubmit} disabled={isLoading}>
+          {"Submit"}
+        </button>
+      )}
     </div>
   );
 };
