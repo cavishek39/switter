@@ -10,6 +10,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
+import { useUser } from "@clerk/nextjs";
 
 /**
  * This is the posts router for your server.
@@ -33,6 +34,9 @@ const ratelimit = new Ratelimit({
 });
 
 export const postsRouter = createTRPCRouter({
+  /**
+   * Get all posts
+   */
   getAll: publicProcedure.query(async ({ ctx }) => {
     const posts = await ctx.prisma.post.findMany({
       orderBy: {
@@ -57,6 +61,9 @@ export const postsRouter = createTRPCRouter({
     });
   }),
 
+  /**
+   * Create a post
+   */
   createPost: protectedProcedure
     .input(
       z.object({ content: z.string().min(1).max(280), authorId: z.string() })
@@ -78,5 +85,76 @@ export const postsRouter = createTRPCRouter({
       });
 
       return post;
+    }),
+
+  /**
+   * Update a post
+   */
+  updatePost: protectedProcedure
+    .input(
+      z.object({ postId: z.string(), content: z.string().min(1).max(280) })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { user } = useUser();
+      const authorId = user?.id;
+      const id = input?.postId;
+      const content = input?.content;
+
+      const { success } = await ratelimit.limit(id);
+
+      if (!id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post ID is missing...!",
+        });
+      }
+
+      if (!success) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      }
+
+      const updatedPost = await ctx.prisma.post.update({
+        where: {
+          id,
+        },
+        data: {
+          id,
+          authorId,
+          content,
+          created_at: new Date(),
+        },
+      });
+
+      return updatedPost;
+    }),
+
+  /**
+   * Delete a post
+   */
+  deletePost: protectedProcedure
+    .input(z.object({ postId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const id = input?.postId;
+
+      if (!id) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post ID is missing...!",
+        });
+      }
+
+      const { success } = await ratelimit.limit(id);
+
+      if (!success) {
+        throw new TRPCError({ code: "TOO_MANY_REQUESTS" });
+      }
+
+      const deletedPost = await ctx.prisma.post.delete({
+        where: {
+          id,
+        },
+      });
+
+      return deletedPost;
     }),
 });
