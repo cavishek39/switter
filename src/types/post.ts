@@ -3,4 +3,5 @@ export type Post = {
   created_at: Date;
   content: string;
   authorId: string;
+  isEdited: boolean;
 };

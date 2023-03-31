@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import toast from "react-hot-toast";
 import { DEFAULT_AVATAR } from "~/constants";
 import { Post } from "~/types/post";
@@ -23,17 +23,53 @@ const Post = ({ post, author }: PostProps) => {
   const { user } = useUser();
   const ctx = api.useContext();
 
-  const { mutate: deletePost, isLoading } = api.posts.deletePost.useMutation({
-    onSuccess() {
-      void ctx.posts.invalidate();
-    },
-    onError(err) {
-      toast.error(`${err.message}, Please try again later`);
-    },
-  });
+  const [showInput, setShowInput] = useState<boolean>(false);
+  const [text, setText] = useState<string>(post?.content);
+
+  const { mutate: deletePost, isLoading: deletingPost } =
+    api.posts.deletePost.useMutation({
+      onSuccess() {
+        void ctx.posts.invalidate();
+      },
+      onError(err) {
+        toast.error(`${err.message}, Please try again later`);
+      },
+    });
+
+  const { mutate: updatePost, isLoading: updatingPost } =
+    api.posts.updatePost.useMutation({
+      onSuccess() {
+        setText("");
+        setShowInput(false);
+        void ctx.posts.getAll.invalidate();
+      },
+      onError(err) {
+        setText("");
+        setShowInput(false);
+        toast.error(
+          `${err.message}, ${
+            !user?.id ? "Please sign in first" : "Please try again later"
+          }`
+        );
+      },
+    });
 
   const handleDeletingPost = () => {
     deletePost({ postId: post?.id });
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSubmit();
+    }
+  };
+
+  const handleSubmit = () => {
+    updatePost({
+      content: text,
+      postId: post?.id,
+      authorId: post?.authorId,
+    });
   };
 
   return (
@@ -55,25 +91,29 @@ const Post = ({ post, author }: PostProps) => {
               {moment(post.created_at)?.fromNow()}
             </p>
           </div>
-          <div className="pl-4" hidden={post?.authorId !== user?.id}>
-            {isLoading ? (
-              <LoadingSpinner />
-            ) : (
-              <button
-                disabled={isLoading}
-                onClick={handleDeletingPost}
-                className="text-end text-sm"
-              >
-                ✏️
-              </button>
-            )}
+          <div
+            className="px-4"
+            hidden={post?.authorId !== user?.id || deletingPost}
+          >
+            <button
+              disabled={updatingPost || deletingPost}
+              className="text-end text-sm text-cyan-700"
+              onClick={() => {
+                setShowInput(!showInput);
+              }}
+            >
+              {showInput ? "cancel" : "✏️"}
+            </button>
           </div>
-          <div className="pl-4" hidden={post?.authorId !== user?.id}>
-            {isLoading ? (
+          <div
+            className="pl-4"
+            hidden={post?.authorId !== user?.id || updatingPost}
+          >
+            {deletingPost ? (
               <LoadingSpinner />
             ) : (
               <button
-                disabled={isLoading}
+                disabled={updatingPost || deletingPost}
                 onClick={handleDeletingPost}
                 className="text-end text-sm"
               >
@@ -82,7 +122,37 @@ const Post = ({ post, author }: PostProps) => {
             )}
           </div>
         </div>
-        <div className="text-base">{post?.content}</div>
+        {showInput ? (
+          <div className="flex">
+            <input
+              type="text"
+              defaultValue={post?.content}
+              value={updatingPost ? "..." : text}
+              disabled={updatingPost}
+              placeholder="Give your sweet tweet"
+              className="grow bg-transparent outline-none"
+              onChange={(event) => setText(event.target.value)}
+              onKeyUp={handleKeyPress}
+            />
+            {updatingPost ? (
+              <LoadingSpinner />
+            ) : (
+              <button
+                type="button"
+                className="text-lg"
+                onClick={handleSubmit}
+                disabled={updatingPost || !text}
+              >
+                ➡️
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="flex">
+            <p className="text-base">{post?.content}</p>
+            {post?.isEdited && <p className="px-2 text-gray-500">(edited)</p>}
+          </div>
+        )}
       </div>
     </div>
   );

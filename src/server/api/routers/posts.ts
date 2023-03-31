@@ -10,7 +10,6 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { useUser } from "@clerk/nextjs";
 
 /**
  * This is the posts router for your server.
@@ -92,11 +91,14 @@ export const postsRouter = createTRPCRouter({
    */
   updatePost: protectedProcedure
     .input(
-      z.object({ postId: z.string(), content: z.string().min(1).max(280) })
+      z.object({
+        postId: z.string(),
+        content: z.string().min(1).max(280),
+        authorId: z.string(),
+      })
     )
     .mutation(async ({ ctx, input }) => {
-      const { user } = useUser();
-      const authorId = user?.id;
+      const authorId = input?.authorId;
       const id = input?.postId;
       const content = input?.content;
 
@@ -121,7 +123,7 @@ export const postsRouter = createTRPCRouter({
           id,
           authorId,
           content,
-          created_at: new Date(),
+          isEdited: true,
         },
       });
 
