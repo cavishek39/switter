@@ -1,3 +1,4 @@
+import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import Image from "next/image";
 import React from "react";
@@ -19,6 +20,7 @@ type PostProps = {
 };
 
 const Post = ({ post, author }: PostProps) => {
+  const { user } = useUser();
   const ctx = api.useContext();
 
   const { mutate: deletePost, isLoading } = api.posts.deletePost.useMutation({
@@ -53,7 +55,20 @@ const Post = ({ post, author }: PostProps) => {
               {moment(post.created_at)?.fromNow()}
             </p>
           </div>
-          <div className="pl-4">
+          <div className="pl-4" hidden={post?.authorId !== user?.id}>
+            {isLoading ? (
+              <LoadingSpinner />
+            ) : (
+              <button
+                disabled={isLoading}
+                onClick={handleDeletingPost}
+                className="text-end text-sm"
+              >
+                ✏️
+              </button>
+            )}
+          </div>
+          <div className="pl-4" hidden={post?.authorId !== user?.id}>
             {isLoading ? (
               <LoadingSpinner />
             ) : (
