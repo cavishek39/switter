@@ -4,7 +4,10 @@
 ## Deployed link
 https://twitter-clone-mu-lime.vercel.app/
 
-This is a [T3 Stack](https://create.t3.gg/) project bootstrapped with `create-t3-app`.
+## Screenshots
+ ![image](https://user-images.githubusercontent.com/71460522/229833284-fb49e7c4-ad3a-4923-a577-6dc023d27951.png)
+ ![image](https://user-images.githubusercontent.com/71460522/229833518-94b0f6b9-73ee-492a-9dc1-78764cbed99a.png)
+
 
 ## What's next? How do I make an app with this?
 
