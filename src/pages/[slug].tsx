@@ -7,7 +7,7 @@ import superjson from "superjson";
 import { api } from "~/utils/api";
 import { appRouter } from "~/server/api/root";
 import { prisma } from "~/server/db";
-import { PageLayout } from "./layout";
+import PageLayout from "./layout";
 import Post from "~/components/Post";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 

@@ -1,6 +1,6 @@
 import type { PropsWithChildren } from "react";
 
-export const PageLayout = ({ children }: PropsWithChildren) => {
+const PageLayout = ({ children }: PropsWithChildren) => {
   return (
     <main className="flex h-full justify-center">
       <div className=" h-full w-full flex-col items-center justify-center border-x border-slate-500  md:max-w-2xl">
@@ -16,3 +16,5 @@ export const PageLayout = ({ children }: PropsWithChildren) => {
     </main>
   );
 };
+
+export default PageLayout;
