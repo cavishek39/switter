@@ -1,4 +1,3 @@
-import type { User } from "@clerk/nextjs/dist/api";
 import { clerkClient } from "@clerk/nextjs/server";
 import { z } from "zod";
 import { Ratelimit } from "@upstash/ratelimit"; // for deno: see above
@@ -10,20 +9,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-
-/**
- * This is the posts router for your server.
- *
- * All the posts related routers added in /api/routers should be manually added here.
- */
-
-const filteredPosts = (user: User) => {
-  return {
-    id: user.id,
-    username: user.username,
-    profileImageUrl: user.profileImageUrl,
-  };
-};
+import { filteredUserForClient } from "~/server/helpers";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -49,7 +35,7 @@ export const postsRouter = createTRPCRouter({
         userId: posts.map((post) => post?.authorId),
         limit: 100,
       })
-    ).map(filteredPosts);
+    ).map(filteredUserForClient);
 
     return posts.map((post) => {
       const author = users.find((user) => user?.id === post?.authorId);
@@ -59,6 +45,47 @@ export const postsRouter = createTRPCRouter({
       };
     });
   }),
+
+  /**
+   * Get a post by userID
+   */
+  getPostByUserId: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const authorId = input?.userId;
+
+      if (!authorId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Author ID is missing...!",
+        });
+      }
+
+      const posts = await ctx.prisma.post.findMany({
+        where: {
+          authorId,
+        },
+        orderBy: {
+          created_at: "desc",
+        },
+        take: 100,
+      });
+
+      const users = (
+        await clerkClient.users.getUserList({
+          userId: posts.map((post) => post?.authorId),
+          limit: 100,
+        })
+      ).map(filteredUserForClient);
+
+      return posts.map((post) => {
+        const author = users.find((user) => user?.id === post?.authorId);
+        return {
+          post,
+          author,
+        };
+      });
+    }),
 
   /**
    * Create a post

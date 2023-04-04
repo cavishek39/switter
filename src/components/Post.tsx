@@ -7,6 +7,7 @@ import { DEFAULT_AVATAR } from "~/constants";
 import { Post } from "~/types/post";
 import { api } from "~/utils/api";
 import { LoadingSpinner } from "./LoadingSpinner";
+import Link from "next/link";
 
 type PostProps = {
   post: Post;
@@ -83,14 +84,18 @@ const Post = ({ post, author }: PostProps) => {
       />
       <div className="items-center justify-center">
         <div className="flex items-center ">
-          <div className="text-lg font-semibold text-sky-700">
-            {author?.username}
-          </div>
-          <div className="flex justify-center px-2">
-            <p className="text-center text-sm">
-              {moment(post.created_at)?.fromNow()}
-            </p>
-          </div>
+          <Link href={`/@${author?.username ?? ""}`}>
+            <div className="text-lg font-semibold text-sky-700">
+              {author?.username}
+            </div>
+          </Link>
+          <Link href={`/post/${post?.id}`}>
+            <div className="flex justify-center px-2">
+              <p className="text-center text-sm">
+                {moment(post.created_at)?.fromNow()}
+              </p>
+            </div>
+          </Link>
           <div
             className="px-4"
             hidden={post?.authorId !== user?.id || deletingPost}
