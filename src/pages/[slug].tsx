@@ -12,8 +12,12 @@ import Post from "~/components/Post";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { options } from "~/constants";
 import { useUser } from "@clerk/nextjs";
+import { useState } from "react";
+import ModalPopupContainer from "~/containers/ModalPopup";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+
   const { isSignedIn } = useUser();
 
   const { data: profileData } = api.profile.getUserByUsername.useQuery({
@@ -35,7 +39,13 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const formattedDate = new Date(profileData?.createdAt);
   const newJoinedDate = formattedDate?.toLocaleDateString("en-US", options);
 
-  console.log("isSignedIn", isSignedIn);
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   return (
     <>
@@ -57,6 +67,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           <button
             className="h-11 w-32  rounded-lg border-2 border-cyan-800  text-center"
             // TODO: Add edit profile functionality
+            onClick={openModal}
           >
             <p className="font-semibold">Edit Profile ✏️</p>
           </button>
@@ -90,6 +101,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           </div>
         )}
       </PageLayout>
+      <ModalPopupContainer isModalOpen={isModalOpen} closeModal={closeModal} />
     </>
   );
 };
