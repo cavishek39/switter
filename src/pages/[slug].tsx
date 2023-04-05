@@ -11,8 +11,11 @@ import PageLayout from "./layout";
 import Post from "~/components/Post";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { options } from "~/constants";
+import { useUser } from "@clerk/nextjs";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
+  const { isSignedIn } = useUser();
+
   const { data: profileData } = api.profile.getUserByUsername.useQuery({
     username,
   });
@@ -31,6 +34,8 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
   const formattedDate = new Date(profileData?.createdAt);
   const newJoinedDate = formattedDate?.toLocaleDateString("en-US", options);
+
+  console.log("isSignedIn", isSignedIn);
 
   return (
     <>
@@ -62,7 +67,7 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
         }`}</div>
         <div className="mb-4 ml-6 text-base text-gray-600">{`🗓️Joined ${newJoinedDate}`}</div>
 
-        {isLoading ? (
+        {isSignedIn && isLoading ? (
           <LoadingSpinner />
         ) : (
           <div className="flex w-full flex-col justify-center">
@@ -71,9 +76,17 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
                 Sweets
               </div>
             </div>
-            {postsData?.map((item, index) => (
-              <Post key={index} post={item?.post} author={item?.author} />
-            ))}
+            {isSignedIn ? (
+              <>
+                {postsData?.map((item, index) => (
+                  <Post key={index} post={item?.post} author={item?.author} />
+                ))}
+              </>
+            ) : (
+              <div className="mt-4  ml-6 text-center text-2xl">
+                Login to see Sweets
+              </div>
+            )}
           </div>
         )}
       </PageLayout>
