@@ -10,6 +10,7 @@ import { prisma } from "~/server/db";
 import PageLayout from "./layout";
 import Post from "~/components/Post";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
+import { options } from "~/constants";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const { data: profileData } = api.profile.getUserByUsername.useQuery({
@@ -27,6 +28,9 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
       </div>
     );
   }
+
+  const formattedDate = new Date(profileData?.createdAt);
+  const newJoinedDate = formattedDate?.toLocaleDateString("en-US", options);
 
   return (
     <>
@@ -53,9 +57,10 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           </button>
         </div>
         <div className="mt-4  ml-6 text-2xl">{profileData?.fullName}</div>
-        <div className="mb-8 ml-6 text-lg text-cyan-800">{`@${
+        <div className="mb-2 ml-6 text-lg text-cyan-800">{`@${
           profileData?.username ?? ""
         }`}</div>
+        <div className="mb-4 ml-6 text-base text-gray-600">{`🗓️Joined ${newJoinedDate}`}</div>
 
         {isLoading ? (
           <LoadingSpinner />

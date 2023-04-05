@@ -12,5 +12,6 @@ export const filteredUserForClient = (user: User) => {
     username: user.username,
     profileImageUrl: user.profileImageUrl,
     fullName: `${user?.firstName ?? ""} ${user?.lastName ?? ""}`,
+    createdAt: user.createdAt,
   };
 };
