@@ -6,7 +6,7 @@ import type { User } from "@clerk/nextjs/dist/api";
  * All the posts related routers added in /api/routers should be manually added here.
  */
 
-export const filteredUserForClient = (user: User) => {
+export const filteredUserForClient = (user: Partial<User>) => {
   return {
     id: user.id,
     username: user.username,
