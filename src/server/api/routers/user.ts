@@ -1,8 +1,12 @@
+import { User } from "@clerk/nextjs/dist/api";
 import { z } from "zod";
 import { DEFAULT_AVATAR } from "~/constants";
 
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
-import { filteredUserForClient } from "~/server/helpers";
+import {
+  FilteredUserForClientType,
+  filteredUserForClient,
+} from "~/server/helpers";
 
 export const userRouter = createTRPCRouter({
   /**
@@ -48,10 +52,10 @@ export const userRouter = createTRPCRouter({
 
       console.log(`User= ${user}`);
 
-      const userData = {
+      const userData: FilteredUserForClientType = {
         id: user?.id,
         username: user.username,
-        fullName: user.name,
+        fullName: user.name || "",
         profileImageUrl: user.image || DEFAULT_AVATAR,
       };
 
