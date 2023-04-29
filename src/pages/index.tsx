@@ -1,17 +1,19 @@
 import { type NextPage } from "next";
-import { SignInButton, SignOutButton, useUser } from "@clerk/nextjs";
+import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useEffect, useMemo } from "react";
 
 import { api } from "~/utils/api";
 import { CreatePost } from "~/components/CreatePost";
 import Post from "~/components/Post";
 import Link from "next/link";
-import { useEffect } from "react";
-import toast from "react-hot-toast";
+
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
   const { isSignedIn, user } = useUser();
+
+  const cachedPosts = useMemo(() => data, [data]);
 
   const { mutate: upsertUser } = api.user.upsertUser.useMutation({
     /* onError: (err) => {
@@ -55,11 +57,7 @@ const Home: NextPage = () => {
                 </h1>
               </Link>
             </div>
-            {!isSignedIn ? (
-              <div className="flex h-9 justify-center rounded-lg bg-slate-500 px-3">
-                <SignInButton mode="modal" />
-              </div>
-            ) : (
+            {isSignedIn && (
               <div className="flex h-9 justify-center rounded-lg bg-slate-500 px-3">
                 <SignOutButton />
               </div>
@@ -73,8 +71,12 @@ const Home: NextPage = () => {
             <LoadingSpinner />
           ) : (
             <div className="flex w-full flex-col justify-center">
-              {data?.map((item, index) => (
-                <Post key={index} post={item?.post} author={item?.author} />
+              {cachedPosts?.map((item) => (
+                <Post
+                  key={item?.post?.id}
+                  post={item?.post}
+                  author={item?.author}
+                />
               ))}
             </div>
           )}
