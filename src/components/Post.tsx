@@ -13,9 +13,11 @@ type PostProps = {
   post: Post;
   author:
     | {
-        id: string;
-        username: string | null;
-        profileImageUrl: string;
+        id: string | undefined;
+        username: string | null | undefined;
+        profileImageUrl: string | undefined;
+        fullName: string;
+        createdAt: number | undefined;
       }
     | undefined;
 };
