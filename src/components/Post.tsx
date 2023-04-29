@@ -1,7 +1,7 @@
 import { useUser } from "@clerk/nextjs";
 import moment from "moment";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import toast from "react-hot-toast";
 import { DEFAULT_AVATAR } from "~/constants";
 import { Post } from "~/types/post";
@@ -165,4 +165,4 @@ const Post = ({ post, author }: PostProps) => {
   );
 };
 
-export default Post;
+export default memo(Post);

@@ -5,10 +5,9 @@ import { Toaster } from "react-hot-toast";
 import { api } from "~/utils/api";
 import "~/styles/globals.css";
 import Head from "next/head";
+import DontMissSection from "~/components/DontMissSection";
 
 const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
-  // Get the pathname
-
   return (
     <ClerkProvider {...pageProps}>
       <Head>
@@ -18,6 +17,7 @@ const MyApp: AppType = ({ Component, pageProps: { ...pageProps } }) => {
       </Head>
       <Toaster position="bottom-center" />
       <Component {...pageProps} />
+      <DontMissSection />
     </ClerkProvider>
   );
 };
