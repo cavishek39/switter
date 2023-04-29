@@ -2,7 +2,7 @@
 **A place to tweet in a sweet way❤️‍🔥.**
 
 ## Deployed link
-https://twitter-clone-mu-lime.vercel.app/
+https://switter-cavishek39.vercel.app/
 
 ## Screenshots
  ![image](https://user-images.githubusercontent.com/71460522/229833284-fb49e7c4-ad3a-4923-a577-6dc023d27951.png)

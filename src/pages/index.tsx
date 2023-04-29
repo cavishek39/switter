@@ -1,11 +1,12 @@
 import { type NextPage } from "next";
 import { SignOutButton, useUser } from "@clerk/nextjs";
+import { useEffect, useMemo } from "react";
 
 import { api } from "~/utils/api";
 import { CreatePost } from "~/components/CreatePost";
 import Post from "~/components/Post";
 import Link from "next/link";
-import { useEffect, useMemo } from "react";
+
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 const Home: NextPage = () => {
