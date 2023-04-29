@@ -7,29 +7,25 @@ import Post from "~/components/Post";
 import Link from "next/link";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
+import { LoadingSpinner } from "~/components/LoadingSpinner";
 
 const Home: NextPage = () => {
   const { data, isLoading } = api.posts.getAll.useQuery();
   const { isSignedIn, user } = useUser();
 
   const { mutate: upsertUser } = api.user.upsertUser.useMutation({
-    onSuccess: (data) => {
-      console.log("Successfully upserted user on DB", data);
-      toast.success("Successfully Logged In");
-    },
-    onError: (err) => {
+    /* onError: (err) => {
       toast.error(
         `${err.message}, ${
           !user?.id ? "Please sign in first" : "Please try again later"
         }`
       );
-    },
+    }, */
   });
 
   useEffect(() => {
-    if (isSignedIn) {
-      console.log("User is signed in", isSignedIn);
-
+    if (isSignedIn && !!user) {
+      console.log("User is signed in", { isSignedIn, user });
       upsertUser({
         user: {
           id: user?.id || "",
@@ -41,22 +37,6 @@ const Home: NextPage = () => {
       });
     }
   }, [isSignedIn, user]);
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center text-2xl">
-        Loading...
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center text-2xl">
-        Something went wrong!
-      </div>
-    );
-  }
 
   return (
     <>
@@ -89,11 +69,15 @@ const Home: NextPage = () => {
           <div className=" border-b border-slate-500 p-6">
             <CreatePost />
           </div>
-          <div className="flex w-full flex-col justify-center">
-            {data?.map((item, index) => (
-              <Post key={index} post={item?.post} author={item?.author} />
-            ))}
-          </div>
+          {isLoading ? (
+            <LoadingSpinner />
+          ) : (
+            <div className="flex w-full flex-col justify-center">
+              {data?.map((item, index) => (
+                <Post key={index} post={item?.post} author={item?.author} />
+              ))}
+            </div>
+          )}
         </div>
       </main>
     </>

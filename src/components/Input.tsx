@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 
 type InputProps = {
   placeholder: string;
@@ -21,7 +20,7 @@ const Input = (props: InputProps) => {
       defaultValue={props.defaultValue}
       onChange={props.onChange}
       onKeyDown={handleKeyDown}
-      className="w-full rounded-none border-2 border-slate-400 bg-zinc-900 px-4 py-2 text-lg text-blue-500 outline-none focus:bg-white"
+      className="w-full rounded-none border-2 border-slate-400 bg-zinc-900 px-4 py-2 text-lg text-blue-500 outline-none focus:bg-zinc-800"
     />
   );
 };

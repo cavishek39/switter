@@ -1,4 +1,5 @@
-import type { User } from "@clerk/nextjs/dist/api";
+import type { User as ClerkUser } from "@clerk/nextjs/dist/api";
+import { User as PrismaUser } from "@prisma/client";
 
 /**
  * This is the posts router for your server.
@@ -11,15 +12,27 @@ export type FilteredUserForClientType = {
   username: string;
   profileImageUrl: string;
   fullName: string;
-  createdAt?: number;
+  createdAt: number;
+  bio?: string;
+  website?: string;
+  location?: string;
+  email: string;
 };
 
-export const filteredUserForClient = (user: User) => {
+export type UserForClientType = ClerkUser &
+  PrismaUser &
+  FilteredUserForClientType;
+
+export const filteredUserForClient = (user: UserForClientType) => {
   return {
     id: user.id,
     username: user.username || "",
     profileImageUrl: user.profileImageUrl,
-    fullName: `${user?.firstName ?? ""} ${user?.lastName ?? ""}`,
+    fullName: user.fullName || "",
     createdAt: user.createdAt,
+    bio: user.bio,
+    location: user.location,
+    website: user.website,
+    email: user.emailAddresses?.[0]?.emailAddress,
   };
 };

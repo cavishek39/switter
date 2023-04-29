@@ -15,10 +15,13 @@ model User {
     id       String  @id @default(cuid())
     name     String?
     username String  @unique
-    email    String? @unique
+    email    String  @unique
     image    String?
     bio      String?
     location String?
+    website  String?
+
+    @@unique([id, username, email])
 }
 
 model Post {

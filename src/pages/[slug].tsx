@@ -13,7 +13,8 @@ import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { options } from "~/constants";
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import ModalPopupContainer from "~/containers/ModalPopup";
+import EditProfile from "~/containers/modal/EditProfile";
+import type { User } from "@prisma/client";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -45,6 +46,17 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
   const closeModal = () => {
     setIsModalOpen(false);
+  };
+
+  const userData: User = {
+    id: profileData?.id,
+    email: profileData?.email || "",
+    bio: profileData?.bio || "",
+    image: profileData?.profileImageUrl || "",
+    location: profileData?.location || "",
+    name: profileData?.fullName || "",
+    username: profileData?.username || "",
+    website: profileData?.website || "",
   };
 
   return (
@@ -101,7 +113,11 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           </div>
         )}
       </PageLayout>
-      <ModalPopupContainer isModalOpen={isModalOpen} closeModal={closeModal} />
+      <EditProfile
+        user={userData}
+        isModalOpen={isModalOpen}
+        closeModal={closeModal}
+      />
     </>
   );
 };
