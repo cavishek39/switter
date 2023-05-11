@@ -8,6 +8,8 @@ import { Post } from "~/types/post";
 import { api } from "~/utils/api";
 import { LoadingSpinner } from "./LoadingSpinner";
 import Link from "next/link";
+import FavoriteBorderOutlined from "@material-ui/icons/FavoriteBorderOutlined";
+import FavoriteOutlinedIcon from "@material-ui/icons/FavoriteOutlined";
 
 type PostProps = {
   post: Post;
@@ -57,6 +59,32 @@ const Post = ({ post, author }: PostProps) => {
       },
     });
 
+  const { mutate: likePost } = api.posts.likePost.useMutation({
+    onSuccess() {
+      void ctx.posts.getAll.invalidate();
+    },
+    onError(err) {
+      toast.error(
+        `${err.message}, ${
+          !user?.id ? "Please sign in first" : "Please try again later"
+        }`
+      );
+    },
+  });
+
+  const { mutate: dislikePost } = api.posts.dislikePost.useMutation({
+    onSuccess() {
+      void ctx.posts.getAll.invalidate();
+    },
+    onError(err) {
+      toast.error(
+        `${err.message}, ${
+          !user?.id ? "Please sign in first" : "Please try again later"
+        }`
+      );
+    },
+  });
+
   const handleDeletingPost = () => {
     deletePost({ postId: post?.id });
   };
@@ -75,91 +103,126 @@ const Post = ({ post, author }: PostProps) => {
     });
   };
 
+  const isPostLikedByMe = (): boolean => {
+    return post.likes > 0 && post?.likedById === user?.id;
+  };
+
   return (
-    <div key={post?.id} className="flex border-b border-slate-500 p-6">
-      <Image
-        src={author?.profileImageUrl || DEFAULT_AVATAR}
-        width={56}
-        height={56}
-        alt="profile-img"
-        className="mr-4 h-14 w-14 rounded-full"
-      />
-      <div className="items-center justify-center">
-        <div className="flex items-center ">
-          <Link href={`/@${author?.username ?? ""}`}>
-            <div className="text-lg font-semibold text-sky-700">
-              {author?.username}
-            </div>
-          </Link>
-          <Link href={`/post/${post?.id}`}>
-            <div className="flex justify-center px-2">
-              <p className="text-center text-sm">
-                {moment(post.created_at)?.fromNow()}
-              </p>
-            </div>
-          </Link>
-          <div
-            className="px-4"
-            hidden={post?.authorId !== user?.id || deletingPost}
-          >
-            <button
-              disabled={updatingPost || deletingPost}
-              className="text-end text-sm text-cyan-700"
-              onClick={() => {
-                setShowInput(!showInput);
-              }}
+    <div className="border-b border-slate-500 p-6">
+      <div key={post?.id} className="flex">
+        <Image
+          src={author?.profileImageUrl || DEFAULT_AVATAR}
+          width={56}
+          height={56}
+          alt="profile-img"
+          className="mr-4 h-14 w-14 rounded-full"
+        />
+        <div className="items-center justify-center">
+          <div className="flex items-center ">
+            <Link href={`/@${author?.username ?? ""}`}>
+              <div className="text-lg font-semibold text-sky-700">
+                {author?.username}
+              </div>
+            </Link>
+            <Link href={`/post/${post?.id}`}>
+              <div className="flex justify-center px-2">
+                <p className="text-center text-sm">
+                  {moment(post.created_at)?.fromNow()}
+                </p>
+              </div>
+            </Link>
+            <div
+              className="px-4"
+              hidden={post?.authorId !== user?.id || deletingPost}
             >
-              {showInput ? "cancel" : "✏️"}
-            </button>
-          </div>
-          <div
-            className="pl-4"
-            hidden={post?.authorId !== user?.id || updatingPost}
-          >
-            {deletingPost ? (
-              <LoadingSpinner />
-            ) : (
               <button
                 disabled={updatingPost || deletingPost}
-                onClick={handleDeletingPost}
-                className="text-end text-sm"
+                className="text-end text-sm text-cyan-700"
+                onClick={() => {
+                  setShowInput(!showInput);
+                }}
               >
-                ❌
+                {showInput ? "cancel" : "✏️"}
               </button>
-            )}
+            </div>
+            <div
+              className="pl-4"
+              hidden={post?.authorId !== user?.id || updatingPost}
+            >
+              {deletingPost ? (
+                <LoadingSpinner />
+              ) : (
+                <button
+                  disabled={updatingPost || deletingPost}
+                  onClick={handleDeletingPost}
+                  className="text-end text-sm"
+                >
+                  ❌
+                </button>
+              )}
+            </div>
           </div>
+          {showInput ? (
+            <div className="flex">
+              <input
+                type="text"
+                defaultValue={post?.content}
+                value={updatingPost ? "..." : text}
+                disabled={updatingPost}
+                placeholder="Give your sweet tweet"
+                className="grow bg-transparent outline-none"
+                onChange={(event) => setText(event.target.value)}
+                onKeyUp={handleKeyPress}
+              />
+              {updatingPost ? (
+                <LoadingSpinner />
+              ) : (
+                <button
+                  type="button"
+                  className="text-lg"
+                  onClick={handleSubmit}
+                  disabled={updatingPost || !text}
+                >
+                  ➡️
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex">
+              <p className="text-base">{post?.content}</p>
+              {post?.isEdited && <p className="px-2 text-gray-500">(edited)</p>}
+            </div>
+          )}
         </div>
-        {showInput ? (
-          <div className="flex">
-            <input
-              type="text"
-              defaultValue={post?.content}
-              value={updatingPost ? "..." : text}
-              disabled={updatingPost}
-              placeholder="Give your sweet tweet"
-              className="grow bg-transparent outline-none"
-              onChange={(event) => setText(event.target.value)}
-              onKeyUp={handleKeyPress}
-            />
-            {updatingPost ? (
-              <LoadingSpinner />
-            ) : (
-              <button
-                type="button"
-                className="text-lg"
-                onClick={handleSubmit}
-                disabled={updatingPost || !text}
-              >
-                ➡️
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="flex">
-            <p className="text-base">{post?.content}</p>
-            {post?.isEdited && <p className="px-2 text-gray-500">(edited)</p>}
-          </div>
-        )}
+      </div>
+      <div className="py-1 pl-20">
+        <button
+          onClick={() => {
+            if (!isPostLikedByMe()) {
+              likePost({
+                postId: post?.id,
+                userId: user?.id || "",
+              });
+            } else {
+              dislikePost({
+                postId: post?.id || "",
+                userId: user?.id || "",
+              });
+            }
+          }}
+        >
+          {isPostLikedByMe() ? (
+            <div>
+              <FavoriteOutlinedIcon color="error" />
+              <h2 className="text-sm">{post?.likes}</h2>
+            </div>
+          ) : (
+            <div>
+              <FavoriteBorderOutlined />
+              <h2 className="text-sm">{post?.likes}</h2>
+            </div>
+          )}
+        </button>
       </div>
     </div>
   );

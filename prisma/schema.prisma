@@ -30,6 +30,8 @@ model Post {
     content    String   @db.VarChar(255)
     authorId   String
     isEdited   Boolean  @default(false)
+    likes      Int      @default(0)
+    likedById  String   @default("")
 
     @@index([authorId])
 }

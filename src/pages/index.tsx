@@ -15,6 +15,8 @@ const Home: NextPage = () => {
 
   const cachedPosts = useMemo(() => data, [data]);
 
+  // console.log("Cached posts ", cachedPosts[cachedPosts?.length - 1]?.post);
+
   const { mutate: upsertUser } = api.user.upsertUser.useMutation({
     /* onError: (err) => {
       toast.error(

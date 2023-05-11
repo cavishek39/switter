@@ -4,4 +4,6 @@ export type Post = {
   content: string;
   authorId: string;
   isEdited: boolean;
+  likes: number;
+  likedById: string;
 };
