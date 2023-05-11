@@ -10,7 +10,10 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import { UserForClientType, filteredUserForClient } from "~/server/helpers";
+import {
+  type UserForClientType,
+  filteredUserForClient,
+} from "~/server/helpers";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
@@ -186,5 +189,91 @@ export const postsRouter = createTRPCRouter({
       });
 
       return deletedPost;
+    }),
+
+  /**
+   * Like a post
+   */
+  likePost: protectedProcedure
+    .input(z.object({ postId: z.string(), userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const postId = input?.postId;
+      const userId = input?.userId;
+
+      if (!postId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post ID is missing...!",
+        });
+      }
+
+      const post = await ctx.prisma.post.findUnique({
+        where: {
+          id: postId,
+        },
+      });
+
+      if (!post) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post does not exist...!",
+        });
+      }
+
+      const newLike = await ctx.prisma.post.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          ...post,
+          likes: post.likes + 1,
+          likedById: userId,
+        },
+      });
+
+      return newLike;
+    }),
+
+  /*
+   * Dislike a post
+   * */
+  dislikePost: protectedProcedure
+    .input(z.object({ postId: z.string(), userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const postId = input?.postId;
+      const userId = input?.userId;
+
+      if (!postId) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post ID is missing...!",
+        });
+      }
+
+      const post = await ctx.prisma.post.findUnique({
+        where: {
+          id: postId,
+        },
+      });
+
+      if (!post) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Post does not exist...!",
+        });
+      }
+
+      const updatedPost = await ctx.prisma.post.update({
+        where: {
+          id: postId,
+        },
+        data: {
+          ...post,
+          likedById: "",
+          likes: post.likes - 1,
+        },
+      });
+
+      return updatedPost;
     }),
 });

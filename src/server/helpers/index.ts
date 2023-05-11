@@ -17,6 +17,8 @@ export type FilteredUserForClientType = {
   website?: string;
   location?: string;
   email: string;
+  likes?: number;
+  likedById?: string;
 };
 
 export type UserForClientType = ClerkUser &
@@ -34,5 +36,7 @@ export const filteredUserForClient = (user: UserForClientType) => {
     location: user.location,
     website: user.website,
     email: user.emailAddresses?.[0]?.emailAddress,
+    likes: user.likes,
+    likedById: user.likedById,
   };
 };
