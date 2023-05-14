@@ -21,6 +21,16 @@ import { prisma } from "~/server/db";
 
 type CreateContextOptions = {
   currentUserId: string | null;
+  revalidateSSG:
+    | ((
+        urlPath: string,
+        opts?:
+          | {
+              unstable_onlyGenerated?: boolean | undefined;
+            }
+          | undefined
+      ) => Promise<void>)
+    | null;
 };
 
 /**
@@ -37,6 +47,7 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
   return {
     prisma,
     currentUserId: opts.currentUserId,
+    revalidateSSG: opts.revalidateSSG,
   };
 };
 
@@ -47,13 +58,14 @@ const createInnerTRPCContext = (opts: CreateContextOptions) => {
  * @see https://trpc.io/docs/context
  */
 export const createTRPCContext = (opts: CreateNextContextOptions) => {
-  const { req } = opts;
+  const { req, res } = opts;
 
   // Get the session from the server using the getServerSession wrapper function
   const { userId } = getAuth(req);
 
   return createInnerTRPCContext({
     currentUserId: userId,
+    revalidateSSG: res.revalidate,
   });
 };
 
@@ -107,7 +119,7 @@ export const publicProcedure = t.procedure;
 
 /** Reusable middleware that enforces users are logged in before running the procedure. */
 const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
-  console.log(ctx.currentUserId);
+  // console.log(ctx.currentUserId);
   if (!ctx.currentUserId) {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
@@ -115,6 +127,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
   return next({
     ctx: {
       currentUserId: ctx.currentUserId,
+      revalidateSSG: ctx.revalidateSSG,
     },
   });
 });

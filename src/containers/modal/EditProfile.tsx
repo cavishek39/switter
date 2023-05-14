@@ -6,7 +6,7 @@ import Input from "~/components/Input";
 import { api } from "~/utils/api";
 import { toast } from "react-hot-toast";
 
-type EditProfileContainerProps = {
+type EditProfileProps = {
   user: User;
   isModalOpen: boolean;
   closeModal: () => void;
@@ -24,11 +24,7 @@ const imageContainer: React.CSSProperties = {
   borderRadius: "64px",
 };
 
-const EditProfile = ({
-  user,
-  isModalOpen,
-  closeModal,
-}: EditProfileContainerProps) => {
+const EditProfile = ({ user, isModalOpen, closeModal }: EditProfileProps) => {
   const [image, setImage] = useState<string>(user?.image || "");
   const [name, setName] = useState<string>(user?.name || "");
   const [bio, setBio] = useState(user?.bio || "");
@@ -36,7 +32,7 @@ const EditProfile = ({
   const [website, setWebsite] = useState<string>(user?.website || "");
 
   const { mutate } = api.user.updateUser.useMutation({
-    onSuccess: (data) => {
+    onSuccess: () => {
       toast.success("Profile updated successfully!");
       handleModalClose();
     },
@@ -108,7 +104,6 @@ const EditProfile = ({
         <div className="flex-col items-center justify-center">
           <div className="p-2">
             <Input
-              onSubmit={(e) => console.log(e.target)}
               onChange={(e) => setName(e.target.value)}
               placeholder="Name"
               defaultValue={name}
@@ -117,7 +112,6 @@ const EditProfile = ({
           <div className="p-2">
             <Input
               placeholder="Bio"
-              onSubmit={(e) => console.log(e.target)}
               onChange={(e) => setBio(e.target.value)}
               defaultValue={bio}
             />
@@ -125,7 +119,6 @@ const EditProfile = ({
           <div className="p-2">
             <Input
               placeholder="Location"
-              onSubmit={(e) => console.log(e.target)}
               onChange={(e) => setLocation(e.target.value)}
               defaultValue={location}
             />
@@ -133,7 +126,6 @@ const EditProfile = ({
           <div className="p-2">
             <Input
               placeholder="Website"
-              onSubmit={(e) => console.log(e.target)}
               onChange={(e) => setWebsite(e.target.value)}
               defaultValue={website}
             />

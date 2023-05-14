@@ -19,6 +19,10 @@ export type FilteredUserForClientType = {
   email: string;
   likes?: number;
   likedById?: string;
+  followersCount?: number;
+  followingCount?: number;
+  isFollowing?: boolean;
+  birthday?: string;
 };
 
 export type UserForClientType = ClerkUser &
@@ -38,5 +42,15 @@ export const filteredUserForClient = (user: UserForClientType) => {
     email: user.emailAddresses?.[0]?.emailAddress,
     likes: user.likes,
     likedById: user.likedById,
+    followersCount: user.followersCount,
+    followingCount: user.followingCount,
+    isFollowing: user.isFollowing,
+    birthday: user.birthday,
   };
 };
+
+const pluralRules = new Intl.PluralRules();
+
+export function getPlural(number: number, singular: string, plural: string) {
+  return pluralRules.select(number) === "one" ? singular : plural;
+}

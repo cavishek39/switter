@@ -10,10 +10,7 @@ import {
   protectedProcedure,
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
-import {
-  type UserForClientType,
-  filteredUserForClient,
-} from "~/server/helpers";
+import { type UserForClientType, filteredUserForClient } from "~/helpers";
 
 // Create a new ratelimiter, that allows 3 requests per 1 minute
 const ratelimit = new Ratelimit({
