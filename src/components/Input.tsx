@@ -2,13 +2,13 @@ import React from "react";
 
 type InputProps = {
   placeholder: string;
-  onSubmit: (event: React.FormEvent<HTMLInputElement>) => void;
+  onSubmit?: (event: React.FormEvent<HTMLInputElement>) => void;
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 const Input = (props: InputProps) => {
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
-      props.onSubmit(event);
+      props?.onSubmit && props?.onSubmit(event);
     }
   }
 

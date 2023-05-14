@@ -10,7 +10,7 @@ import {
   FilteredUserForClientType,
   UserForClientType,
   filteredUserForClient,
-} from "~/server/helpers";
+} from "~/helpers";
 
 export const userRouter = createTRPCRouter({
   /**

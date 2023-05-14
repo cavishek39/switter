@@ -12,14 +12,19 @@ import Post from "~/components/Post";
 import { LoadingSpinner } from "~/components/LoadingSpinner";
 import { options } from "~/constants";
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { use, useState } from "react";
 import EditProfile from "~/containers/modal/EditProfile";
 import type { User } from "@prisma/client";
+import toast from "react-hot-toast";
+import { getPlural } from "~/helpers";
+import FollowButton from "~/components/FollowButton";
 
 const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
-  const { isSignedIn } = useUser();
+  const { isSignedIn, user } = useUser();
+
+  const trpcUtils = api.useContext();
 
   const { data: profileData } = api.profile.getUserByUsername.useQuery({
     username,
@@ -27,6 +32,31 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
 
   const { data: postsData, isLoading } = api.posts.getPostByUserId.useQuery({
     userId: profileData?.id || "",
+  });
+
+  const toggleFollowUser = api.profile.toggleFollowUser.useMutation({
+    onSuccess: ({ isFollowing }) => {
+      toast.success(`${isFollowing ? "Followed" : "UnFollowed"} successfully!`);
+
+      // Updating the cache
+      trpcUtils.profile.getUserByUsername.setData({ username }, (oldData) => {
+        if (oldData == null) return;
+
+        const countModifier = isFollowing ? 1 : -1;
+        return {
+          ...oldData,
+          isFollowing: isFollowing,
+          followersCount: (oldData?.followersCount || 0) + countModifier,
+        };
+      });
+    },
+    onError: (error) => {
+      toast.error(
+        `${error.message}, ${
+          !user?.id ? "Please sign in first" : "Please try again later"
+        }`
+      );
+    },
   });
 
   if (!profileData) {
@@ -76,19 +106,43 @@ const ProfilePage: NextPage<{ username: string }> = ({ username }) => {
           />
         </div>
         <div className="m-4 flex items-center justify-end  align-middle">
-          <button
-            className="h-11 w-32  rounded-lg border-2 border-cyan-800  text-center"
-            // TODO: Add edit profile functionality
-            onClick={openModal}
-          >
-            <p className="font-semibold">Edit Profile ✏️</p>
-          </button>
+          {user?.username === username ? (
+            <button
+              className="h-11 w-32  rounded-lg border-2 border-cyan-800  text-center"
+              onClick={openModal}
+            >
+              <p className="font-semibold">Edit Profile ✏️</p>
+            </button>
+          ) : (
+            <FollowButton
+              isFollowing={profileData?.isFollowing}
+              isLoading={toggleFollowUser.isLoading}
+              onClick={() =>
+                toggleFollowUser.mutate({ followerId: profileData?.id || "" })
+              }
+            />
+          )}
         </div>
         <div className="mt-4  ml-6 text-2xl">{profileData?.fullName}</div>
         <div className="mb-2 ml-6 text-lg text-cyan-800">{`@${
           profileData?.username ?? ""
         }`}</div>
-        <div className="mb-4 ml-6 text-base text-gray-600">{`🗓️Joined ${newJoinedDate}`}</div>
+        <div className="flex items-center">
+          {/* <div className="mb-4 ml-6 text-base text-gray-600">{`🎂 ${profileData?.birthday}`}</div> */}
+          <div className="mb-4 ml-6 text-base text-gray-600">{`🗓️ Joined ${newJoinedDate}`}</div>
+        </div>
+        <div className="flex items-center">
+          <div className="mb-4 ml-6 text-base text-gray-600">{`${
+            profileData?.followingCount || 0
+          } Following`}</div>
+          <div className="mb-4 ml-6 text-base text-gray-600">{`${
+            profileData?.followersCount || 0
+          } ${getPlural(
+            profileData?.followersCount || 0,
+            "Follower",
+            "Followers"
+          )}`}</div>
+        </div>
 
         {isSignedIn && isLoading ? (
           <LoadingSpinner />
@@ -130,6 +184,7 @@ export async function getStaticProps(
     ctx: {
       prisma,
       currentUserId: null,
+      revalidateSSG: null,
     },
     transformer: superjson,
   });

@@ -29,7 +29,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (isSignedIn && !!user) {
-      console.log("User is signed in", { isSignedIn, user });
+      // console.log("User is signed in", { isSignedIn, user });
       upsertUser({
         user: {
           id: user?.id || "",
@@ -40,7 +40,7 @@ const Home: NextPage = () => {
         },
       });
     }
-  }, [isSignedIn, user]);
+  }, [isSignedIn, user, upsertUser]);
 
   return (
     <>

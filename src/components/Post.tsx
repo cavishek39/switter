@@ -59,31 +59,33 @@ const Post = ({ post, author }: PostProps) => {
       },
     });
 
-  const { mutate: likePost } = api.posts.likePost.useMutation({
-    onSuccess() {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError(err) {
-      toast.error(
-        `${err.message}, ${
-          !user?.id ? "Please sign in first" : "Please try again later"
-        }`
-      );
-    },
-  });
+  const { mutate: likePost, isLoading: likingPost } =
+    api.posts.likePost.useMutation({
+      onSuccess() {
+        void ctx.posts.getAll.invalidate();
+      },
+      onError(err) {
+        toast.error(
+          `${err.message}, ${
+            !user?.id ? "Please sign in first" : "Please try again later"
+          }`
+        );
+      },
+    });
 
-  const { mutate: dislikePost } = api.posts.dislikePost.useMutation({
-    onSuccess() {
-      void ctx.posts.getAll.invalidate();
-    },
-    onError(err) {
-      toast.error(
-        `${err.message}, ${
-          !user?.id ? "Please sign in first" : "Please try again later"
-        }`
-      );
-    },
-  });
+  const { mutate: dislikePost, isLoading: disLikingPost } =
+    api.posts.dislikePost.useMutation({
+      onSuccess() {
+        void ctx.posts.getAll.invalidate();
+      },
+      onError(err) {
+        toast.error(
+          `${err.message}, ${
+            !user?.id ? "Please sign in first" : "Please try again later"
+          }`
+        );
+      },
+    });
 
   const handleDeletingPost = () => {
     deletePost({ postId: post?.id });
@@ -105,6 +107,20 @@ const Post = ({ post, author }: PostProps) => {
 
   const isPostLikedByMe = (): boolean => {
     return post.likes > 0 && post?.likedById === user?.id;
+  };
+
+  const handleLikeOrDislikePost = () => {
+    if (!isPostLikedByMe()) {
+      likePost({
+        postId: post?.id,
+        userId: user?.id || "",
+      });
+    } else {
+      dislikePost({
+        postId: post?.id || "",
+        userId: user?.id || "",
+      });
+    }
   };
 
   return (
@@ -197,19 +213,8 @@ const Post = ({ post, author }: PostProps) => {
       </div>
       <div className="py-1 pl-20">
         <button
-          onClick={() => {
-            if (!isPostLikedByMe()) {
-              likePost({
-                postId: post?.id,
-                userId: user?.id || "",
-              });
-            } else {
-              dislikePost({
-                postId: post?.id || "",
-                userId: user?.id || "",
-              });
-            }
-          }}
+          disabled={!user?.id || likingPost || disLikingPost}
+          onClick={handleLikeOrDislikePost}
         >
           {isPostLikedByMe() ? (
             <div>
